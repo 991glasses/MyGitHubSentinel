@@ -14,7 +14,7 @@ report_generator = ReportGenerator(llm)
 subscription_manager = SubscriptionManager(config.subscriptions_file)
 
 
-def export_progress_by_date_range(repo, days):
+def export_progress_by_date_range(repo, days, temperature):
     raw_file_path = github_client.export_progress_by_date_range(repo, days)
     report, report_file_path = report_generator.generate_report_by_date_range(raw_file_path, days)
 
@@ -28,6 +28,7 @@ demo = gr.Interface(
             subscription_manager.list_subscriptions(), label="订阅列表", info="已订阅GitHub项目"
         ),
         gr.Slider(value=2, minimum=1, maximum=7, step=1, label="报告周期", info="生成项目过去一段时间进展，单位：天"),
+        gr.Slider(value=0.95, minimum=0.1, maximum=1, step=0.01, label="temperature", info="大模型的temperature"),
 
     ],
     outputs=[gr.Markdown(), gr.File(label="下载报告")],

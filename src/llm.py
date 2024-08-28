@@ -12,8 +12,9 @@ class LLM:
         LOG.add("daily_progress/llm_logs.log", rotation="1 MB", level="DEBUG")
 
     def generate_daily_report(self, markdown_content, dry_run=False):
-        # 构建一个用于生成报告的提示文本，要求生成的报告包含新增功能、主要改进和问题修复
-        system_prompt = "以下是一个 git 项目的最新进展，请根据功能合并同类项，形成一份简报，至少包含：1）新增功能；2）主要改进；3）修复问题。\n你可以根据开头的标题判断出该项目是否是一个知名项目，如果是，请根据你了解到的知识判断哪些改动项是重要的，将其高亮标注出来。\n简报使用中文撰写。"
+        system_prompt = ""
+        with open("system_prompt.md", "r", encoding='utf-8') as file:
+            system_prompt = file.read()
         
         prompt = markdown_content
         if dry_run:
@@ -29,19 +30,22 @@ class LLM:
         
         try:
             # 调用 OpenAI 模型生成报告
-            # client = self.openai_client
+            client = self.openai_client
             # model = "gpt-3.5-turbo"
+            model = "gpt-4o"
 
             # 调用 智谱AI 模型生成报告
-            client = self.zhipu_client
-            model = "glm-4-0520"
+            # client = self.zhipu_client
+            # model = "glm-4-0520"
 
             response = client.chat.completions.create(
                 model=model,
                 messages=[
                     {"role": "system", "content": system_prompt},
                     {"role": "user", "content": prompt}  # 提交用户角色的消息
-                ]
+                ],
+                # temperature=70,
+                # max_tokens=4095
             )
             LOG.debug("GPT response: {}", response)
             # 返回模型生成的内容
